@@ -1501,9 +1501,11 @@ static void AudioFileStreamPacketsProc(void* clientData, UInt32 numberBytes, UIn
         {
             double delta = ((seekByteOffset - (SInt64)currentEntry->audioDataOffset) - packetAlignedByteOffset) / calculatedBitRate * 8;
             
-            OSSpinLockLock(&currentEntry->spinLock);
-            currentEntry->seekTime -= delta;
-            OSSpinLockUnlock(&currentEntry->spinLock);
+            if (delta > 0) {
+                OSSpinLockLock(&currentEntry->spinLock);
+                currentEntry->seekTime -= delta;
+                OSSpinLockUnlock(&currentEntry->spinLock);
+            }
             
             seekByteOffset = packetAlignedByteOffset + currentEntry->audioDataOffset;
         }
